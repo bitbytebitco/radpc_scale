@@ -12,8 +12,7 @@ socket = context.socket(zmq.PAIR)
 socket.bind("tcp://*:%s" % port)
 
 while True:
-    #msg_data = b"this is a test"
-    msg_data = b"0x24"
+    msg_data = b"0x24" # mimicking a message coming from ground through the FCU
     protoBufMsg = getProtoBufMessage(msg_data) 
     protoBufMsg.SerializeToString()
 
@@ -21,4 +20,4 @@ while True:
     msg = socket.recv()
     print(msg)
     print('')
-    time.sleep(1)
+    time.sleep(10)
