@@ -34,7 +34,7 @@ def display_menu():
     print("2. Exit")
     print(70 * "-")
 
-def text_menu(socket, lock, rq, sq, kq, newstdin, **kwargs): 
+def text_menu(socket, lock, rq, sq, kq, newstdin): 
         sys.stdin = newstdin
         try:
             display_menu() 
@@ -50,7 +50,7 @@ def text_menu(socket, lock, rq, sq, kq, newstdin, **kwargs):
             elif choice == 2:
                 kq.put('1') 
             else:
-                input("Wrong option selection. Enter any key to try again..")
+                text_menu(socket, lock, rq, sq, kq, newstdin)
         except EOFError:
             return 
 
@@ -82,6 +82,7 @@ if __name__ == "__main__":
         port = "5555"
         context = zmq.Context()
         socket = context.socket(zmq.PAIR)
+        socket.setsockopt(zmq.RCVTIMEO, 1000)
         socket.bind("tcp://*:%s" % port)
 
         p = MyProcess(target=text_menu, args=(socket, lock, rq, sq, kq, newstdin , ))
@@ -90,21 +91,27 @@ if __name__ == "__main__":
         running = True
         while running:
             if not(sq.empty()):
-                p.shutdown()
-
-                msg = sq.get()
-
-                protoBufMsg = getProtoBufMessage(msg) 
-                protoBufMsg.SerializeToString()
-                socket.send(protoBufMsg.SerializeToString())
-                
-                lock.acquire() 
-                time.sleep(1)
- 
-                print('### listening')
-                
+                print('top')
                 try:
-                    msg = socket.recv(flags=zmq.NOBLOCK)
+                    p.shutdown()
+
+                    msg = sq.get()
+                    print(msg)
+
+                    protoBufMsg = getProtoBufMessage(msg) 
+                    protoBufMsg.SerializeToString()
+                    socket.send(protoBufMsg.SerializeToString())
+                    
+                    #lock.acquire() 
+                    #time.sleep(1)
+     
+                    print('### listening')
+                except Exception as e:
+                    print('here happened')
+                    print(e) 
+                try:
+                    #msg = socket.recv(flags=zmq.NOBLOCK)
+                    msg = socket.recv()
                     FCUMessage = PayloadMessage.FCU_SWICD_PayloadMessage()
 
                     # load data from socket into Protobuf object
@@ -113,7 +120,7 @@ if __name__ == "__main__":
                     print("{0}MESSAGE FROM RADPC:{1}".format(color.RED, color.END))
                     print(FCUMessage.messageSentTS)
                     print(FCUMessage.data)
-                    lock.release()
+                    #lock.release()
                 except zmq.Again as e:
                     print("No message received yet")
 
