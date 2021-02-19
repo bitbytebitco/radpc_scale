@@ -6,8 +6,8 @@ import random
 import sys
 import time
 import multiprocessing
-from multiprocessing import Process, Queue, Lock
-
+from multiprocessing import Process, Queue
+ 
 import FCU_SWICD_PayloadMessage_pb2 as PayloadMessage 
 from protobuf_lib import getProtoBufMessage
 
@@ -34,7 +34,7 @@ def display_menu():
     print("2. Exit")
     print(70 * "-")
 
-def text_menu(socket, lock, rq, sq, kq, newstdin): 
+def text_menu(socket, rq, sq, kq, newstdin): 
         sys.stdin = newstdin
         try:
             display_menu() 
@@ -46,11 +46,12 @@ def text_menu(socket, lock, rq, sq, kq, newstdin):
                 print('input exception')
             if choice == 1:
                 print("{0}Requesting Packet{1}".format(color.BLUE,color.END))
-                sq.put(b"0x24")    
+                #sq.put(b'\x25\x01')    
+                sq.put(b'\x25')    
             elif choice == 2:
                 kq.put('1') 
             else:
-                text_menu(socket, lock, rq, sq, kq, newstdin)
+                text_menu(socket, rq, sq, kq, newstdin)
         except EOFError:
             return 
 
@@ -73,7 +74,6 @@ class MyProcess(multiprocessing.Process):
 
 if __name__ == "__main__":
     try:
-        lock = Lock()
         kq = Queue()
         sq = Queue()
         rq = Queue()
@@ -85,13 +85,12 @@ if __name__ == "__main__":
         socket.setsockopt(zmq.RCVTIMEO, 1000)
         socket.bind("tcp://*:%s" % port)
 
-        p = MyProcess(target=text_menu, args=(socket, lock, rq, sq, kq, newstdin , ))
+        p = MyProcess(target=text_menu, args=(socket, rq, sq, kq, newstdin , ))
         p.start()
 
         running = True
         while running:
             if not(sq.empty()):
-                print('top')
                 try:
                     p.shutdown()
 
@@ -102,7 +101,6 @@ if __name__ == "__main__":
                     protoBufMsg.SerializeToString()
                     socket.send(protoBufMsg.SerializeToString())
                     
-                    #lock.acquire() 
                     #time.sleep(1)
      
                     print('### listening')
@@ -120,23 +118,13 @@ if __name__ == "__main__":
                     print("{0}MESSAGE FROM RADPC:{1}".format(color.RED, color.END))
                     print(FCUMessage.messageSentTS)
                     print(FCUMessage.data)
-                    #lock.release()
                 except zmq.Again as e:
                     print("No message received yet")
 
-                p = MyProcess(target=text_menu, args=(socket, lock, rq, sq, kq, newstdin , ))
+                p = MyProcess(target=text_menu, args=(socket, rq, sq, kq, newstdin , ))
                 p.start()
 
-                #listening = True 
-                #while listening: 
-                #    print('### listening')
-                #    
-                #    listening = False
-
-                #lock.release()
-
             if not(kq.empty()):
-                #print('Exiting Program')
                 socket.close()
                 p.shutdown() 
                 print("Goodbye")

@@ -21,7 +21,8 @@ def uart_client(rq, sq):
                 ser.flush()
 
                 #if ser.in_waiting > 0:
-                radpc_msg = ser.readline()
+                #radpc_msg = ser.readline()
+                radpc_msg = ser.read(256)
 
                 # put RadPC message into send_queue for transmission back through FCU
                 sq.put(radpc_msg)
