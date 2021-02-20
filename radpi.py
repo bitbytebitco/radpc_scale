@@ -8,8 +8,10 @@ from  multiprocessing import Process, Queue
 import FCU_SWICD_PayloadMessage_pb2 as PayloadMessage 
 from protobuf_lib import getProtoBufMessage
 
-SERIAL_PORT = '/dev/ttyACM0'
-BAUD_RATE = 9600
+#SERIAL_PORT = '/dev/ttyACM0'
+SERIAL_PORT = '/dev/tty.usbmodem14203'
+#BAUD_RATE = 9600
+BAUD_RATE = 115200 
 
 def uart_client(rq, sq):
     while True:
@@ -18,12 +20,12 @@ def uart_client(rq, sq):
 
             try:
                 ser.write(msg) 
-                ser.flush()
+                #ser.flush()
 
                 #if ser.in_waiting > 0:
                 #radpc_msg = ser.readline()
                 radpc_msg = ser.read(256)
-
+		
                 # put RadPC message into send_queue for transmission back through FCU
                 sq.put(radpc_msg)
                    
@@ -83,8 +85,13 @@ def zmqclient(rq, sq, port="5555"):
         #time.leep(1)
 
 if __name__ == "__main__":
-    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
-    ser.flush()
+    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=3)
+    #ser.flush()
+    ser.reset_input_buffer()
+
+
+    #ser.write(b'\x24') 
+    #print(ser.read(10))
 
     '''
     try:
