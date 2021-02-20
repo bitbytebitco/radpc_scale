@@ -47,7 +47,8 @@ def text_menu(socket, rq, sq, kq, newstdin):
             if choice == 1:
                 print("{0}Requesting Packet{1}".format(color.BLUE,color.END))
                 #sq.put(b'\x25\x01')    
-                sq.put(b'\x25')    
+                #sq.put(b'\x24')    
+                sq.put(b'\x22')    
             elif choice == 2:
                 kq.put('1') 
             else:
