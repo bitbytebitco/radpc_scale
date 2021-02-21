@@ -3,28 +3,35 @@
 import zmq
 import serial
 import time
-from  multiprocessing import Process, Queue
+from  multiprocessing import Process, Queue, Lock
 
 import FCU_SWICD_PayloadMessage_pb2 as PayloadMessage 
 from protobuf_lib import getProtoBufMessage
 
-#SERIAL_PORT = '/dev/ttyACM0'
-SERIAL_PORT = '/dev/tty.usbmodem14203'
-#BAUD_RATE = 9600
-BAUD_RATE = 115200 
+DEBUG=True
 
-def uart_client(rq, sq):
+if DEBUG:
+    SERIAL_PORT = '/dev/ttyACM0'
+    BAUD_RATE = 9600
+else:
+    SERIAL_PORT = '/dev/tty.usbmodem14203'
+    BAUD_RATE = 115200 
+    
+def uart_client(rq, sq, lock):
     while True:
         if not(rq.empty()):
             msg = rq.get()
 
             try:
+                #lock.acquire()
                 ser.write(msg) 
                 #ser.flush()
 
                 #if ser.in_waiting > 0:
                 #radpc_msg = ser.readline()
                 radpc_msg = ser.read(256)
+                print('UART RESPONSE:')
+                print(radpc_msg)
 		
                 # put RadPC message into send_queue for transmission back through FCU
                 sq.put(radpc_msg)
@@ -32,89 +39,72 @@ def uart_client(rq, sq):
             except Exception as e:
                 print('error')
                 print(e)   
-            print('testend')
 
-def zmqclient(rq, sq, port="5555"):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://localhost:%s" % port)
+def zmqclient(rq, sq, socket):
+    ''' RECEIVE FROM FCU ''' 
+    # receive data from zmq socket
+    msg = socket.recv()
+    print("## MSG from fcusim.py")
+    print(msg)
+    # instantiate Protobuf object
+    FCUMessage = PayloadMessage.FCU_SWICD_PayloadMessage()
+    # load data from socket into Protobuf object
+    FCUMessage.ParseFromString(msg)
 
-    while True:
-        ''' RECEIVE FROM FCU ''' 
-        # receive data from zmq socket
-        msg = socket.recv()
-        print("## MSG from fcusim.py")
-        print(msg)
-        # instantiate Protobuf object
-        FCUMessage = PayloadMessage.FCU_SWICD_PayloadMessage()
-        # load data from socket into Protobuf object
-        FCUMessage.ParseFromString(msg)
-
-        # send message to multiprocess Queue
-        # for use by process that interfaces with RadPC
-        rq.put(FCUMessage.data) 
+    # send message to multiprocess Queue
+    # for use by process that interfaces with RadPC
+    rq.put(FCUMessage.data) 
+    
+    # print messages to STDOUT
+    print(FCUMessage.messageSentTS)
+    print(FCUMessage.data)
+    
+def check_send_q(sq, socket ):
+    try:
+        #if not(sq.empty()):
+        radpc_msg = sq.get()
         
-        #time.sleep(2)
+        print('check_send_q')
+        print(radpc_msg)
+        #if len(radpc)>0:
+        #    print('')
+        #    print('UART: radpc_msg')
+        #    print(radpc_msg)
 
-        # print messages to STDOUT
-        print(FCUMessage.messageSentTS)
-        print(FCUMessage.data)
-
-        #socket.send_string("received the message")
-
-        # check if there are messages from RadPC
-        if not(sq.empty()):
-            radpc_msg = sq.get()
-
-            print('')
-            print('UART: radpc_msg')
-            print(radpc_msg)
-
-            print('*** sending response')
-            # send confirmation back to text menu
-            try:
-                protoBufMsg = getProtoBufMessage(radpc_msg) 
-                protoBufMsg.SerializeToString()
-                socket.send(protoBufMsg.SerializeToString(), zmq.NOBLOCK)
-            except Exception as e:
-                print(e)
-            print('next')
-        else:
-            print('empty at the moment')
-        
-        #time.leep(1)
+        print('*** sending response')
+        # send confirmation back to text menu
+        protoBufMsg = getProtoBufMessage(radpc_msg) 
+        protoBufMsg.SerializeToString()
+        socket.send(protoBufMsg.SerializeToString(), zmq.NOBLOCK)
+        #lock.release()
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
+    lock = Lock()
+
+    # Serial 
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=3)
     #ser.flush()
     ser.reset_input_buffer()
 
+    # 0MQ 
+    port = "5555"
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://localhost:%s" % port)
 
-    #ser.write(b'\x24') 
-    #print(ser.read(10))
+    
+    rq = Queue()
+    sq = Queue()
 
-    '''
-    try:
-        print('test run')
-        ser.write(b"0x24") 
-        ser.flush()
+    Process(target=uart_client, args=(rq, sq, lock, )).start()
+    #Process(target=zmqclient, args=(receive_q, send_q, socket,)).start()
+    #Process(target=check_send_q, args=(send_q, socket, lock, )).start()
 
-        time.sleep(1)
-        #if ser.in_waiting > 0:
-        radpc_msg = ser.readline()
-        print('radpc_msg')
-        print(radpc_msg)
-    except Exception as e:
-        print(e)
-    '''
-
+    while True:
+        zmqclient(rq, sq, socket) 
         
-
-    receive_q = Queue()
-    send_q = Queue()
+        check_send_q(sq, socket) 
 
 
-    receive_q.put(b"0x24") 
-
-    Process(target=zmqclient, args=(receive_q, send_q, )).start()
-    Process(target=uart_client, args=(receive_q, send_q, )).start()

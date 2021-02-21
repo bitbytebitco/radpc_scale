@@ -30,6 +30,7 @@ def display_menu():
     print(70 * "*")
     print("Options:")
     print(8 * "*")
+    print("0. \x25")
     print("1. Request Packet")
     print("2. Exit")
     print(70 * "-")
@@ -44,7 +45,9 @@ def text_menu(socket, rq, sq, kq, newstdin):
             except Exception as e:
                 print(e)
                 print('input exception')
-            if choice == 1:
+            if choice == 0:
+                sq.put(b'\x25')
+            elif choice == 1:
                 print("{0}Requesting Packet{1}".format(color.BLUE,color.END))
                 #sq.put(b'\x25\x01')    
                 #sq.put(b'\x24')    
@@ -95,7 +98,7 @@ if __name__ == "__main__":
                 try:
                     p.shutdown()
 
-                    msg = sq.get()
+                    msg = sq.get(False)
                     print(msg)
 
                     protoBufMsg = getProtoBufMessage(msg) 
