@@ -17,15 +17,13 @@ else:
     SERIAL_PORT = '/dev/tty.usbmodem14203'
     BAUD_RATE = 115200 
     
-def uart_client(rq, sq, lock):
+def uart_client(rq, sq):
     while True:
         if not(rq.empty()):
             msg = rq.get()
 
             try:
-                #lock.acquire()
                 ser.write(msg) 
-                #ser.flush()
 
                 #if ser.in_waiting > 0:
                 #radpc_msg = ser.readline()
@@ -40,49 +38,42 @@ def uart_client(rq, sq, lock):
                 print('error')
                 print(e)   
 
-def zmqclient(rq, sq, socket):
+def listen_for_command(rq, sq, socket):
     ''' RECEIVE FROM FCU ''' 
     # receive data from zmq socket
     msg = socket.recv()
-    print("## MSG from fcusim.py")
-    print(msg)
+    
     # instantiate Protobuf object
     FCUMessage = PayloadMessage.FCU_SWICD_PayloadMessage()
     # load data from socket into Protobuf object
     FCUMessage.ParseFromString(msg)
 
-    # send message to multiprocess Queue
-    # for use by process that interfaces with RadPC
+    # Enter msg into Queue (To send to RadPC)
     rq.put(FCUMessage.data) 
+   
+    # messages to STDOUT
+    if DEBUG: 
+        print("## MSG from fcusim.py")
+        print(msg)
+        print(FCUMessage.messageSentTS)
+        print(FCUMessage.data)
     
-    # print messages to STDOUT
-    print(FCUMessage.messageSentTS)
-    print(FCUMessage.data)
-    
-def check_send_q(sq, socket ):
+def respond_to_fcusim(sq, socket ):
     try:
         #if not(sq.empty()):
         radpc_msg = sq.get()
         
-        print('check_send_q')
+        print('respond_to_fcusim')
         print(radpc_msg)
-        #if len(radpc)>0:
-        #    print('')
-        #    print('UART: radpc_msg')
-        #    print(radpc_msg)
 
         print('*** sending response')
-        # send confirmation back to text menu
         protoBufMsg = getProtoBufMessage(radpc_msg) 
         protoBufMsg.SerializeToString()
         socket.send(protoBufMsg.SerializeToString(), zmq.NOBLOCK)
-        #lock.release()
     except Exception as e:
         print(e)
 
 if __name__ == "__main__":
-    lock = Lock()
-
     # Serial 
     ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=3)
     #ser.flush()
@@ -94,17 +85,16 @@ if __name__ == "__main__":
     socket = context.socket(zmq.PAIR)
     socket.connect("tcp://localhost:%s" % port)
 
-    
+    # Thread-safe Queues 
     rq = Queue()
     sq = Queue()
 
-    Process(target=uart_client, args=(rq, sq, lock, )).start()
-    #Process(target=zmqclient, args=(receive_q, send_q, socket,)).start()
-    #Process(target=check_send_q, args=(send_q, socket, lock, )).start()
+    Process(target=uart_client, args=(rq, sq, )).start()
+    #Process(target=listen_for_command, args=(receive_q, send_q, socket,)).start()
+    #Process(target=respond_to_fcusim, args=(send_q, socket, )).start()
 
     while True:
-        zmqclient(rq, sq, socket) 
-        
-        check_send_q(sq, socket) 
+        listen_for_command(rq, sq, socket) 
+        respond_to_fcusim(sq, socket) 
 
 
