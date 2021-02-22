@@ -11,7 +11,7 @@ class MainHandler(tornado.web.RequestHandler):
         db = self.settings['db']
         #cursor = db.messages.find({'i': {'$lt': 5}}).sort('i')
 
-        cursor = db.messages.find({"data": {"$exists":True}})
+        cursor = db.messages.find({"data": {"$exists":True}}).sort([("_id",-1)])
         rows = []
         count = 0
         for document in await cursor.to_list(length=100):
