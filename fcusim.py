@@ -86,6 +86,8 @@ if __name__ == "__main__":
         port = "5555"
         context = zmq.Context()
         socket = context.socket(zmq.PAIR)
+        socket.setsockopt(zmq.SNDHWM, 0)
+        socket.setsockopt(zmq.RCVHWM, 0)
         socket.setsockopt(zmq.RCVTIMEO, 1000)
         socket.bind("tcp://*:%s" % port)
 
