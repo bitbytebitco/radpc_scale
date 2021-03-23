@@ -27,7 +27,7 @@ def uart_client(rq, sq):
 
                 #if ser.in_waiting > 0:
                 #radpc_msg = ser.readline()
-                radpc_msg = ser.read(256)
+                radpc_msg = ser.read(128)
                 print('UART RESPONSE:')
                 print(radpc_msg)
 		

@@ -30,8 +30,8 @@ def display_menu():
     print(70 * "*")
     print("Options:")
     print(8 * "*")
-    print("0. \x25")
-    print("1. Request Packet")
+    print("0. Check Pulse")
+    print("1. Request Current Packet")
     print("2. Exit")
     print(70 * "-")
 
@@ -45,8 +45,8 @@ def text_menu(socket, rq, sq, kq):
                 print(e)
                 print('input exception')
             if choice == 0:
-                return(b'\x25') 
-                sq.put(b'\x25')
+                return(b'\x24') 
+                sq.put(b'\x24')
             elif choice == 1:
                 print("{0}Requesting Packet{1}".format(color.BLUE,color.END))
                 #sq.put(b'\x25\x01')    
