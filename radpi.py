@@ -8,13 +8,13 @@ from  multiprocessing import Process, Queue, Lock
 import FCU_SWICD_PayloadMessage_pb2 as PayloadMessage 
 from protobuf_lib import getProtoBufMessage
 
-DEBUG=True
+DEBUG=False
 
 if DEBUG:
     SERIAL_PORT = '/dev/ttyACM0'
     BAUD_RATE = 9600
 else:
-    SERIAL_PORT = '/dev/tty.usbmodem14203'
+    SERIAL_PORT = '/dev/ttyAMA0'
     BAUD_RATE = 115200 
     
 def uart_client(rq, sq):
@@ -27,7 +27,7 @@ def uart_client(rq, sq):
 
                 #if ser.in_waiting > 0:
                 #radpc_msg = ser.readline()
-                radpc_msg = ser.read(128)
+                radpc_msg = ser.read(256)
                 print('UART RESPONSE:')
                 print(radpc_msg)
 		
