@@ -21,6 +21,21 @@ Install dependencies
 pip install requirements.txt 
 ```
 
+## Usage
+```
+usage: radpi.py [-h] fcu_ip fcu_port
+
+RadPC communication interlink (for use with Raven Thunderhead FCU and RadPC
+Lunar)
+
+positional arguments:
+  fcu_ip      FCU IP address
+  fcu_port    FCU port
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
 ## Important note about Static IP
 In the /etc/dhcpcd.conf file there is a line towards the bottom of the file which holds the static ip:
 ```
