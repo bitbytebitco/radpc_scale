@@ -25,12 +25,12 @@ def uart_client(rq, sq):
 
             try:
                 ser.write(msg)
-
                 #TODO: request different lengths of bytes depending on the command request
+                if msg == b'$':
+                    radpc_msg = ser.read(11)
+                elif msg == b'"':
+                    radpc_msg = ser.read(128)
 
-                #if ser.in_waiting > 0:
-                #radpc_msg = ser.readline()
-                radpc_msg = ser.read(128)
                 print('UART RESPONSE:')
                 print(radpc_msg)
 
