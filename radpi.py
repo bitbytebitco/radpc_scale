@@ -4,10 +4,16 @@ import zmq
 import serial
 import time
 import argparse
+import logging
 from  multiprocessing import Process, Queue, Lock
 
 import FCU_SWICD_PayloadMessage_pb2 as PayloadMessage
 from protobuf_lib import getProtoBufMessage
+
+logging.basicConfig(level=logging.DEBUG, 
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    filename='sample.log',
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 DEBUG=False
 
@@ -21,26 +27,36 @@ else:
 def uart_client(rq, sq):
     while True:
         if not(rq.empty()):
+            radpc_msg = None
             msg = rq.get()
 
             try:
                 #TODO: request different lengths of bytes depending on the command request
                 if msg == b'$':
+                    logging.info("CASE 1")
                     ser.write(b'\x24')
                     radpc_msg = ser.read(11)
                 elif msg == b'"':
+                    logging.info("CASE 2")
                     ser.write(b'\x22')
                     radpc_msg = ser.read(128)
-                print(msg)
-                print('UART RESPONSE:')
-                print(radpc_msg)
+                else:
+                    logging.info("CASE 3: Unsupported Command")
+                    logging.info("Requesting Heartbeat as default")
+                    ser.write(b'\x24')
+                    radpc_msg = ser.read(11)
 
-                # put RadPC message into send_queue for transmission back through FCU
-                sq.put(radpc_msg)
+                if radpc_msg is not None: 
+                    logging.info("Message from Queue: {}".format(msg))
+                    logging.info('UART RESPONSE:')
+                    logging.info(radpc_msg)
+
+                    # put RadPC message into send_queue for transmission back through FCU
+                    sq.put(radpc_msg)
 
             except Exception as e:
-                print('error')
-                print(e)
+                logging.warning('error')
+                logging.warning(e)
 
 def listen_for_command(rq, sq, socket):
     ''' RECEIVE FROM FCU '''
@@ -56,26 +72,25 @@ def listen_for_command(rq, sq, socket):
     rq.put(FCUMessage.data)
 
     # messages to STDOUT
-    if True:
-        print("## MSG from fcusim.py")
-        print(msg)
-        print(FCUMessage.messageSentTS)
-        print(FCUMessage.data)
+    logging.info("## Command Received from FCU")
+    logging.info("Google Protobuf Message: {}".format(msg))
+    logging.info("messageSentTS: {}".format(FCUMessage.messageSentTS))
+    logging.info("data: {}".format(FCUMessage.data))
 
 def respond_to_fcusim(sq, socket ):
     try:
         #if not(sq.empty()):
         radpc_msg = sq.get()
 
-        print('respond_to_fcusim')
-        print(radpc_msg)
+        logging.info('respond_to_fcusim')
+        logging.info(radpc_msg)
 
-        print('*** sending response')
+        logging.info('*** sending response')
         protoBufMsg = getProtoBufMessage(radpc_msg)
         protoBufMsg.SerializeToString()
         socket.send(protoBufMsg.SerializeToString(), zmq.NOBLOCK)
     except Exception as e:
-        print(e)
+        logging.warning(e)
 
 def get_cl_args():
         parser = argparse.ArgumentParser(description='RadPC communication interlink (for use with Raven Thunderhead FCU and RadPC Lunar)')
@@ -95,7 +110,7 @@ if __name__ == "__main__":
     # 0MQ
     fcu_address= "tcp://{}:{}".format(args.fcu_port, args.fcu_ip)
 
-    print(fcu_address)
+    logging.info(fcu_address)
 
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
@@ -114,5 +129,4 @@ if __name__ == "__main__":
     while True:
         listen_for_command(rq, sq, socket)
         respond_to_fcusim(sq, socket)
-
 
