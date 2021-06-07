@@ -24,13 +24,14 @@ def uart_client(rq, sq):
             msg = rq.get()
 
             try:
-                ser.write(msg)
                 #TODO: request different lengths of bytes depending on the command request
                 if msg == b'$':
+                    ser.write(b'\x24')
                     radpc_msg = ser.read(11)
                 elif msg == b'"':
+                    ser.write(b'\x22')
                     radpc_msg = ser.read(128)
-
+                print(msg)
                 print('UART RESPONSE:')
                 print(radpc_msg)
 
@@ -55,7 +56,7 @@ def listen_for_command(rq, sq, socket):
     rq.put(FCUMessage.data)
 
     # messages to STDOUT
-    if DEBUG:
+    if True:
         print("## MSG from fcusim.py")
         print(msg)
         print(FCUMessage.messageSentTS)
