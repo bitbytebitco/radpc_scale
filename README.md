@@ -43,7 +43,7 @@ interface eth0
 static ip_address=10.1.3.7/24
 ```
 
-## Running in Development Mode
+## Functional Descriptions 
 ### fcusim.py
 * Simulation of the FCU 
 * Use for sending commands to radpi.py
@@ -51,5 +51,3 @@ static ip_address=10.1.3.7/24
 ### radpi.py
 * Makes UART connection to primitive RadPC simulation running on Arduino 
 * Makes ZeroMQ connection to fcusim.py, and waits for commands
-
-## Running Live
