@@ -12,7 +12,7 @@ from protobuf_lib import getProtoBufMessage
 
 logging.basicConfig(level=logging.DEBUG, 
     format='%(asctime)s [%(levelname)s] %(message)s',
-    filename='sample.log',
+    filename='/home/pi/radpc_scale/sample.log',
     datefmt='%Y-%m-%d %H:%M:%S')
 
 DEBUG=False
@@ -100,6 +100,9 @@ def get_cl_args():
         return parser.parse_args()
 
 if __name__ == "__main__":
+    # sleep for FCU boot 
+    time.sleep(10)
+
     # Parse command line arguments
     args = get_cl_args()
 
