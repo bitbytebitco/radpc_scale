@@ -111,7 +111,13 @@ if __name__ == "__main__":
     ser.reset_input_buffer()
 
     # 0MQ
-    fcu_address= "tcp://{}:{}".format(args.fcu_port, args.fcu_ip)
+    #source_endpoint = ":{}".format()
+    #fcu_address= "tcp://{}:{}".format(args.fcu_port, args.fcu_ip)
+
+    port = "5562" 
+    source_endpoint = "10.1.3.8:{}".format(port)
+    dest_endpoint = "10.1.7.95:{}".format(port)
+    fcu_address= "tcp://{}:{}".format(source_endpoint, dest_endpoint)
 
     logging.info(fcu_address)
 
