@@ -100,9 +100,6 @@ def get_cl_args():
         return parser.parse_args()
 
 if __name__ == "__main__":
-    # sleep for FCU boot 
-    time.sleep(10)
-
     # Parse command line arguments
     args = get_cl_args()
 
@@ -117,7 +114,7 @@ if __name__ == "__main__":
     port = "5562" 
     source_endpoint = "10.1.3.8:{}".format(port)
     dest_endpoint = "10.1.7.95:{}".format(port)
-    fcu_address= "tcp://{}:{}".format(source_endpoint, dest_endpoint)
+    fcu_address= "tcp://{};{}".format(source_endpoint, dest_endpoint)
 
     logging.info(fcu_address)
 
