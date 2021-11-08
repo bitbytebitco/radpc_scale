@@ -1,21 +1,19 @@
 <!doctype html>
+{% autoescape None %}
 <html lang="en" class="h-100">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
-        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-        <meta name="generator" content="Hugo 0.80.0">
         <title>RadPi Callbacks</title>
 
-        <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/sticky-footer/">
-
-
+        <!-- datepicker -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/css/datepicker.min.css">
 
         <!-- Bootstrap core CSS -->
         <link href="/static/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 
-        <!-- Favicons -->
+                <!-- Favicons -->
         <link rel="apple-touch-icon" href="/docs/5.0/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
         <link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
         <link rel="manifest" href="/docs/5.0/assets/img/favicons/manifest.json">
@@ -24,44 +22,195 @@
         <meta name="theme-color" content="#7952b3">
         
         <link href="/static/sticky-footer.css" rel="stylesheet">
+
+        <style>
+            main > .container {
+              padding: 60px 15px 0;
+            } 
+        </style>
     </head>
     <body class="d-flex flex-column h-100">
 
+        <header>
+          <!-- Fixed navbar -->
+          <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#"></a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/chart?paynum=1&q=1VV&date_from=07%2F27%2F2021&date_to=07%2F29%2F2021">Charts</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link"  href="https://github.com/bitbytebitco/radpc_scale">
+                        <img style="margin-left:0px; width:25px; height:auto;" src="https://git-scm.com/images/logos/downloads/Git-Icon-White.png"/>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+
+
+        </header>
+
         <main class="flex-shrink-0">
             <div class="container">
-                                    
+                        
+                <!-- Heading -->            
                 <h1 class="mt-5">Callbacks</h1>
-                <p class="lead">Existing callbacks from Raven FCU</p>
+                <p class="lead">Callback Requests from Raven FCU</p>
 
-                <table class="table table-success table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Message</th>
-                            <th scope="col">airMessageTime</th>
-                        </tr>
-                    </thead>
-                     <tbody>
-                         {% for c in content %}
-                         <tr>
-                             <td class="col-1">{{ c["i"] }}</td>
-                             <td class="col-8">{{ c["message_decoded"] }}</td>
-                             <td class="col-3">{{ c["at_f"] }}</td>
-                         </tr>
-                         {% end %}
-                     </tbody>
-                </table>
+                <form class="form-inline pb-2"> 
+                  <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control" id="date_from" placeholder="Date from..." value="{{ date_from }}" >
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="date_to" placeholder="Date to..." value="{{ date_to }}" >
+                    </div>
+                    <!--div class="col">
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <label class="input-group-text" for="num_rows"># rows</label>
+                          </div>
+                          <select class="custom-select" name="num_rows" id="num_rows">
+                            <option value="100">100</option>
+                            <option value="500">500</option>
+                          </select>
+                        </div> 
+                    </div-->
+                    <div class="col">
+                        <button type="button" class="btn btn-primary" id="filter">Filter</button>
+                    </div>
+                    <div class="col">
+                            <div class="dropdown show clearfix">
+                              <a class="btn btn-secondary dropdown-toggle mb-3" style="float:right;" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter by Payload
+                              </a>
+
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a class="dropdown-item" href="/">Both</a>
+                                <a class="dropdown-item" href="/?p=1">1</a>
+                                <a class="dropdown-item" href="/?p=2">2</a>
+                              </div>
+                            </div>
+                    </div>
+                  </div>
+                </form>
+                <div class="row mb-2">
+                    <div class="col">
+                       Displaying {{ row_count }} rows
+                    </div>
+                </div>
+                
+
+                <div class="accordion" id="myAccordion">
+                {% for i, c in enumerate(content) %}
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                                <a href="#" type="button" class="float-left pl-0 ml-0 w-75 " data-toggle="collapse" data-target="#collapse{{ i }}">
+                                    {{ c['messageReceivedTime'] }}
+                                </a>
+                                <span class="float-right w-25 text-right muted">Payload: {{ c['paynum'] }}</span>
+                        </div>
+                        <div id="collapse{{ i }}" class="collapse" aria-labelledby="headingOne" data-parent="#myAccordion">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        {% if 'img_b64' in c %}
+                                            <img class="w-100" src="data:image/jpeg;base64, {{ c['img_b64'] }}" />
+                                        {% end %}
+                                        {% for l in c %}
+                                            {% if l in ['messageReceivedTime', 'flightState', 'latitude', 'longitude', 'altitudeM', 'message', 'message_f', 'paynum'] %}
+                                                {% if l == 'message_f' %}
+                                                    <!--div style="word-wrap: break-word;min-width: 980px;max-width: 980px;"--> 
+                                                    <div>
+                                                        <p><b>message (hex)</b><br>
+                                                        {{ c[l] }}
+                                                    </div>
+                                                {% else %}
+                                                    <div>
+                                                    <!--div style="word-wrap: break-word; max-width: 980px;"--> 
+                                                        {% if l == "message" %}
+                                                            <p><b>message (base64)</b><br>
+                                                        {% else %}
+                                                            <p><b>{{ l }}</b><br>
+                                                        {% end %}
+                                                        {{ c[l] }}
+                                                    </div>
+                                                {% end %}
+                                                </p>
+                                            {% end %}
+                                        {% end %}
+                                    </div>
+                                    <div class="col-6">
+                                        {% if 'packet' in c %} 
+                                            {% if c['packet'] is not None %}
+                                            {% for a in c['packet'] %}
+                                               <b>{{ a }} :</b> {{ c['packet'][a] }} <br>
+                                            {% end %}
+                                            {% end %}
+                                        {% end %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% end %}
+                
+</div>
+
             </div>
         </main>
 
         <footer class="footer mt-auto py-3 bg-light">
             <div class="container">
-               footer 
+               <a href="/">Home</a> 
+               <a href="/chart">Charts</a> 
             </div>
         </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+
+
+<script>
+window.onload = function() {
+    console.log('test5');
+    var elem = document.querySelector('#date_from');
+    const datepicker = new Datepicker(elem); 
+    var elem2 = document.querySelector('#date_to');
+    const datepicker2 = new Datepicker(elem2);
+
+    // chart select change handling 
+    var filter = document.querySelector('#filter');
+    filter.addEventListener('click', (event) => {
+        var date_from = document.querySelector('#date_from').value;
+        var date_to = document.querySelector('#date_to').value;
+        //var num_rows = document.querySelector('#num_rows').value;
+        //var uri = "/?date_from="+encodeURIComponent(date_from)+"&date_to="+encodeURIComponent(date_to)+"&num_rows="+num_rows;
+        var uri = "/?date_from="+encodeURIComponent(date_from)+"&date_to="+encodeURIComponent(date_to);
+
+        window.location.href=uri;
+        console.log(uri);
+
+        //form.submit(); 
+        return false;
+    });
+
+
+};
+</script>
 
     </body>
 </html>
-

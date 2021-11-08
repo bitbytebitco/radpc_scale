@@ -1,0 +1,305 @@
+<!doctype html>
+{% autoescape None %}
+<html lang="en" class="h-100">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+        <meta name="generator" content="Hugo 0.80.0">
+        <title>RadPi Callbacks</title>
+
+        <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/sticky-footer/">
+
+        <!-- datepicker -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/css/datepicker.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js"></script>
+
+        <!-- Bootstrap core CSS -->
+        <link href="/static/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+ 
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" href="/docs/5.0/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
+        <link rel="icon" href="/docs/5.0/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+        <link rel="manifest" href="/docs/5.0/assets/img/favicons/manifest.json">
+        <link rel="mask-icon" href="/docs/5.0/assets/img/favicons/safari-pinned-tab.svg" color="#7952b3">
+        <link rel="icon" href="/docs/5.0/assets/img/favicons/favicon.ico">
+        <meta name="theme-color" content="#7952b3">
+        
+        <link href="/static/sticky-footer.css" rel="stylesheet">
+        <style type="text/css">
+            /* 13. Basic Styling with CSS */
+
+            /* Style the lines by removing the fill and applying a stroke */
+            .line {
+                fill: none;
+                stroke: #ffab00;
+                stroke-width: 2;
+            }
+              
+            .overlay {
+              fill: none;
+              pointer-events: all;
+            }
+
+            /* Style the dots by assigning a fill and stroke */
+            .dot {
+                fill: #ffab00;
+                stroke: #fff;
+            }
+              
+              .focus circle {
+              fill: none;
+              stroke: steelblue;
+            }
+            main > .container {
+              padding: 60px 15px 0;
+            } 
+            label { font-weight: bold; } 
+        </style>
+    </head>
+    <body class="d-flex flex-column h-100">
+        <header>
+          <!-- Fixed navbar -->
+          <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#"></a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/chart?paynum=1&q=1VV&date_from=07%2F27%2F2021&date_to=07%2F29%2F2021">Charts</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link"  href="https://github.com/bitbytebitco/radpc_scale">
+                        <img style="width:25px; height:auto;" src="https://git-scm.com/images/logos/downloads/Git-Icon-White.png"/>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </header>
+
+
+        <main class="flex-shrink-0">
+            <div class="container">
+                                    
+                <h1 class="mt-5">Data Visualization</h1>
+                <p class="lead">Data obtained from packets</p>
+ 
+                <form class="mb-4" id="chart-form">
+                    <label>Payload Select</label>
+                    <select id="payload_select" name="paynum" class="form-select">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                    {% if packet_fields %}
+                        <label>Chart Select</label>
+                        <select id="field_select" name="q" class="form-select">
+                            {% for f in packet_fields[1:] %}
+                            <option value="{{ f }}">{{ f }}</option>
+                            {% end %}
+                        </select>
+                    {% end %}
+                    <div class="form-group">
+                        <label>Date From</label>
+                        <input type="text" name="date_from" id="datepicker" class="form-control" value="{{ date_from }}"> 
+                    </div>
+                    <div class="form-group">
+                        <label>Date To</label>
+                        <input type="text" name="date_to" id="datepicker2" class="form-control" value="{{ date_to }}"> 
+                    </div>
+                
+                    {% if len(data_points_2) > 3 %}
+                        <div class="form-group">
+                            <label>sem_inj_fault Offset Correction</label>
+                            <input type="text" name="sem_inj_fault_correction"  class="form-control" placeholder="5" value="{{ sem_inj_fault_correction }}"> 
+                            <small id="emailHelp" class="form-text text-muted">Use this input to add or subtract from the sem_inj_fault values, in order to align the two series. 
+                                <br>The current set of data have the following offsets:
+                                <ul style="list-style-type:none;">
+                                    <li>payload 1: off by <b>4</b></li>
+                                    <li>payload 2: off by <b>1</b></li>
+                                </ul>
+                            </small>
+                        </div>
+                    {% end %}
+                    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                </form> 
+
+                <div class="row mb-2">
+                    <div class="col">
+                        Showing {{ row_count }} data points
+                    </div> 
+                </div>
+
+                <!-- Series Legend --> 
+                <div class="row mb-2">
+                    <div class="col">
+                        <span style="background-color:#A31515; width:50px; height: 50px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> {{ chart_select }}
+                        {% if len(data_points_2) > 3 %}
+                            <br>
+                            <span style="background-color:#3584C3; width:50px; height: 50px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> sem_inj_fault  (offset: <b>+{{ sem_inj_fault_correction }}</b>)
+                        {% end %}
+                    </div>
+                </div>
+               
+                 
+
+                <!-- Charts -->
+                <span id="canvas_point"></span>
+
+            </div>
+        </main>
+
+        <footer class="footer mt-auto py-3 bg-light">
+            <div class="container">
+               <a href="/">Home</a> 
+               <a href="/chart?q=1VV">Charts</a>  
+            </div>
+        </footer>
+
+
+
+    </body>
+</html>
+<script>
+window.chartColors = {
+      red: 'rgb(255, 99, 132)',
+      orange: 'rgb(255, 159, 64)',
+      yellow: 'rgb(255, 205, 86)',
+      green: 'rgb(75, 192, 192)',
+      blue: 'rgb(54, 162, 235)',
+      purple: 'rgb(153, 102, 255)',
+      grey: 'rgb(201, 203, 207)'
+    };
+</script>
+<script src="https://raw.githubusercontent.com/google/palette.js/master/palette.js"></script>
+<!--script src="https://www.chartjs.org/dist/2.9.4/Chart.min.js"></script-->
+<script src="http://dima117.github.io/Chart.Scatter/Chart.Core.min.js"></script>
+<script src="http://dima117.github.io/Chart.Scatter/Chart.Scatter.min.js"></script>
+<!--script src="https://www.chartjs.org/samples/latest/utils.js"></script-->
+<script src="https://gist.githubusercontent.com/topealabi/d7fa9b3be8eef588a6f3df23541f750a/raw/305add5891e4ff6784ee588fd1505f158a6347aa/utils.js"></script>
+<script type="text/javascript" src="/static/charting.js"></script>
+<script>
+
+    var data_points = '{{ data_points }}';
+    var data_points_2 = '{{ data_points_2 }}';
+    //var indexes = '{{ None }}';
+    //let rld = '{{ None }}';
+    let regression_points = JSON.parse('{{ regression_line }}');
+
+    let dps = JSON.parse(data_points);
+    let dps_2 = JSON.parse(data_points_2);
+    let chart_select  = '{{ chart_select  }}';
+    let paynum  = '{{ paynum  }}';
+    //let times = JSON.parse(indexes);
+    //let rlines = JSON.parse(rld);
+   
+    console.log('regression_points'); 
+    console.log(regression_points); 
+    for(i in dps){
+        dps[i]['x'] = new Date(dps[i]['x']);
+        //console.log(dps[i]);
+    }
+    for(i in dps_2){
+        dps_2[i]['x'] = new Date(dps_2[i]['x']);
+        //console.log(dps[i]);
+    }
+    for(i in regression_points){
+        regression_points[i]['x'] = new Date(regression_points[i]['x']);
+    }
+
+    //console.log(times);
+    //console.log(config);
+    window.onload = function() {
+
+        // datepicker
+        var elem = document.querySelector('#datepicker');
+        const datepicker = new Datepicker(elem); 
+        var elem2 = document.querySelector('#datepicker2');
+        const datepicker2 = new Datepicker(elem2);
+
+        // chart select change handling 
+        var selectElement = document.querySelector('#field_select');
+        selectElement.addEventListener('change', (event) => {
+            var form = document.querySelector('#chart-form');
+            form.submit(); 
+        });
+
+        // chart select load handling
+        selectElement.value = chart_select;     
+
+        var payload_select = document.querySelector('#payload_select');
+        payload_select.value = paynum;     
+
+        // form submit 
+        var selectElement = document.querySelector('#chart-form');
+
+        console.log('chart_select');
+        console.log(chart_select);
+
+        let label = "";
+        if(chart_select.includes("VC")){
+           label = "UTC; Amps"; 
+        } else if(chart_select.includes("VV")){
+            label = "UTC; Volts";
+        } else {
+            label = "UTC; Count";
+        }
+    
+        label = chart_select + "  " + label;
+
+        console.log('Data Points 1');
+        console.log(dps);
+        console.log('Data Points 2');
+        console.log(dps_2);
+        //console.log(regression_points);
+        var config = [
+            {
+                label: label,
+                strokeColor: '#A31515',
+                data: dps, 
+            },
+            {
+                label: "Other",
+                strokeColor: '#3584C3',
+                data: dps_2, 
+            }
+        ];
+
+        // Create a new element
+        var newNode = document.createElement('canvas');
+        newNode.setAttribute("id", "canvas0");
+        newNode.setAttribute("width", "800");
+        newNode.setAttribute("height", "600");
+
+        // Get the reference node
+        var referenceNode = document.querySelector('#canvas_point');
+
+        // Insert the new node before the reference node
+        referenceNode.after(newNode);
+        var ctx = document.getElementById('canvas0').getContext('2d');
+            window.myLine = new Chart(ctx).Scatter(config, {
+                bezierCurve: false,
+                pointDot: false,
+                pointDotStrokeWidth: 0,
+                showTooltips: true,
+                scaleShowHorizontalLines: true,
+                scaleShowLabels: true,
+                scaleType: "date",
+                scaleLabel: "<%=value%>"
+            });
+};
+</script>
+
+
