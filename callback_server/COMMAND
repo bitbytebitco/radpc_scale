@@ -1,0 +1,1 @@
+python3 send_data_to_payload.py --jwt-path eric_jwt.txt --data data.txt https://flights.ravenind.com/api

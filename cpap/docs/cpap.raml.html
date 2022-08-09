@@ -1,0 +1,470 @@
+<!DOCTYPE HTML><html><head><title>Customer Payload Access Point API documentation</title><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="generator" content="https://github.com/kevinrenskers/raml2html 2.4.0"><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css"><script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js"></script><script type="text/javascript">
+      $(document).ready(function() {
+        $('.page-header pre code, .top-resource-description pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
+
+        $('[data-toggle]').click(function() {
+          var selector = $(this).data('target') + ' pre code';
+          $(selector).each(function(i, block) {
+            hljs.highlightBlock(block);
+          });
+        });
+
+        // open modal on hashes like #_action_get
+        $(window).bind('hashchange', function(e) {
+          var anchor_id = document.location.hash.substr(1); //strip #
+          var element = $('#' + anchor_id);
+
+          // do we have such element + is it a modal?  --> show it
+          if (element.length && element.hasClass('modal')) {
+            element.modal('show');
+          }
+        });
+
+        // execute hashchange on first page load
+        $(window).trigger('hashchange');
+
+        // remove url fragment on modal hide
+        $('.modal').on('hidden.bs.modal', function() {
+          try {
+            if (history && history.replaceState) {
+                history.replaceState({}, '', '#');
+            }
+          } catch(e) {}
+        });
+      });
+    </script><style>
+      .hljs {
+        background: transparent;
+      }
+      .parent {
+        color: #999;
+      }
+      .list-group-item > .badge {
+        float: none;
+        margin-right: 6px;
+      }
+      .panel-title > .methods {
+        float: right;
+      }
+      .badge {
+        border-radius: 0;
+        text-transform: uppercase;
+        width: 70px;
+        font-weight: normal;
+        color: #f3f3f6;
+        line-height: normal;
+      }
+      .badge_get {
+        background-color: #63a8e2;
+      }
+      .badge_post {
+        background-color: #6cbd7d;
+      }
+      .badge_put {
+        background-color: #22bac4;
+      }
+      .badge_delete {
+        background-color: #d26460;
+      }
+      .badge_patch {
+        background-color: #ccc444;
+      }
+      .list-group, .panel-group {
+        margin-bottom: 0;
+      }
+      .panel-group .panel+.panel-white {
+        margin-top: 0;
+      }
+      .panel-group .panel-white {
+        border-bottom: 1px solid #F5F5F5;
+        border-radius: 0;
+      }
+      .panel-white:last-child {
+        border-bottom-color: white;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+      }
+      .panel-white .panel-heading {
+        background: white;
+      }
+      .tab-pane ul {
+        padding-left: 2em;
+      }
+      .tab-pane h2 {
+        font-size: 1.2em;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #ddd;
+      }
+      .tab-pane h3 {
+        font-size: 1.1em;
+      }
+      .tab-content {
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+      }
+      #sidebar {
+        margin-top: 30px;
+        padding-right: 5px;
+        overflow: auto;
+        height: 90%;
+      }
+      .top-resource-description {
+        border-bottom: 1px solid #ddd;
+        background: #fcfcfc;
+        padding: 15px 15px 0 15px;
+        margin: -15px -15px 10px -15px;
+      }
+      .resource-description {
+        border-bottom: 1px solid #fcfcfc;
+        background: #fcfcfc;
+        padding: 15px 15px 0 15px;
+        margin: -15px -15px 10px -15px;
+      }
+      .resource-description p:last-child {
+        margin: 0;
+      }
+      .list-group .badge {
+        float: left;
+      }
+      .method_description {
+        margin-left: 85px;
+      }
+      .method_description p:last-child {
+        margin: 0;
+      }
+      .list-group-item {
+        cursor: pointer;
+      }
+      .list-group-item:hover {
+        background-color: #f5f5f5;
+      }
+    </style></head><body data-spy="scroll" data-target="#sidebar"><div class="container"><div class="row"><div class="col-md-9" role="main"><div class="page-header"><h1>Customer Payload Access Point API documentation <small>version v1</small></h1><p>https://flights.ravenind.com/api/</p><h3 id="Overview"><a href="#Overview">Overview</a></h3><p>The external payload API will allow transmission and receipt of payload packets via a simple http rest interface. Due to the limitations of the underlying communications (Iridium) from the control center to the balloon, packet size and rate restrictions will apply. In general, data sent via this API will reach the payload. Data received from the payload will be transmitted to a callback rest endpoint registered with this system. Keep in mind that packet delivery time is variable depending on satellite visibility. All rest calls to the system must be made over ssl. Additionally, a JSON Web Token (JWT) will need to be included in the Authorization header of all requests received for authentication. In the beginning, Raven will facilitate the management of these tokens and provide to Customer during flight and test operations. As Raven develops and refines this interface, the API should expand to include the management of security tokens for automated / extended use.</p></div><div class="panel panel-default"><div class="panel-heading"><h3 id="callback" class="panel-title">/callback</h3></div><div class="panel-body"><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_callback"><span class="parent"></span>/callback</a> <span class="methods"><a href="#callback_get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a> <a href="#callback_put"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_callback" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#callback_get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Gets the callback URL registered for this mission/customer. Returned JSON object will list the callback URL and a &#39;verified&#39; status indicating if a successful test call had been made with it.</p></div><div class="clearfix"></div></div><div onclick="window.location.href = '#callback_put'" class="list-group-item"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Sets the callback URL registered for this mission/customer. When payload packets are received by the reachback facility, they will be routed to this callback URL. (see callback rest interface definition for details)</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="callback_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent"></span>/callback</h4></div><div class="modal-body"><div class="alert alert-info"><p>Gets the callback URL registered for this mission/customer. Returned JSON object will list the callback URL and a &#39;verified&#39; status indicating if a successful test call had been made with it.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#callback_get_response" data-toggle="tab">Response</a></li><li><a href="#callback_get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="callback_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "callback": {
+      "type": "string",
+      "description": "URL for callback."
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "True if this callback URL has been successfully tested via /callback/test."
+    }
+  },
+  "required": [
+    "callback",
+    "verified"
+  ]
+}
+</code></pre><p><strong>Example</strong>:</p><pre><code>{
+  "callback": "https://callback/url",
+  "verified": true
+}
+</code></pre><h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2><p>User is not authorized</p></div><div class="tab-pane" id="callback_get_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="callback_put"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent"></span>/callback</h4></div><div class="modal-body"><div class="alert alert-info"><p>Sets the callback URL registered for this mission/customer. When payload packets are received by the reachback facility, they will be routed to this callback URL. (see callback rest interface definition for details)</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#callback_put_request" data-toggle="tab">Request</a></li><li><a href="#callback_put_response" data-toggle="tab">Response</a></li><li><a href="#callback_put_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="callback_put_request"><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "callback": {
+      "type": "string",
+      "description": "URL for callback."
+    }
+  },
+  "required": [
+    "callback"
+  ]
+}
+</code></pre><p><strong>Example</strong>:</p><pre><code>{
+  "callback":"https://callback/url"
+}
+</code></pre></div><div class="tab-pane" id="callback_put_response"><h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2><p>Data accepted. No response body returned.</p><h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2><p>Bad request.</p><h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2><p>User is not authorized</p></div><div class="tab-pane" id="callback_put_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_callback_test"><span class="parent">/callback</span>/test</a> <span class="methods"><a href="#callback_test_put"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_callback_test" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#callback_test_put'" class="list-group-item"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Tests the registered callback for this mission/customer. Customer will send a binary payload in the same way as if sending to a balloon payload. The reachback service will then attempt to forward the binary data to the registered callback URL as if it was received from the airborne payload. Note that in this test case the payload number will be set to 0 to indicate the testing condition. (see callback rest interface definition for details)</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="callback_test_put"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/callback</span>/test</h4></div><div class="modal-body"><div class="alert alert-info"><p>Tests the registered callback for this mission/customer. Customer will send a binary payload in the same way as if sending to a balloon payload. The reachback service will then attempt to forward the binary data to the registered callback URL as if it was received from the airborne payload. Note that in this test case the payload number will be set to 0 to indicate the testing condition. (see callback rest interface definition for details)</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#callback_test_put_request" data-toggle="tab">Request</a></li><li><a href="#callback_test_put_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="callback_test_put_request"><h3>Body</h3><p><strong>Type: application/octet-stream</strong></p></div><div class="tab-pane" id="callback_test_put_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div></div></div></div></div><div class="panel panel-default"><div class="panel-heading"><h3 id="flights" class="panel-title">/flights</h3></div><div class="panel-body"><div class="panel-group"><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_flights"><span class="parent"></span>/flights</a> <span class="methods"><a href="#flights_get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_flights" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#flights_get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Gets a list of airborne assets (unique to mission/customer) with basic identifying and geographic information. Identification is provided for the balloon, mission and any payloads accessible to the customer. Payloads will be configured to communicate over static numbered channels pre-flight (1-5). Geographic information is updated as it is received by the reachback facility. This endpoint can be polled at regular intervals to maintain current flight status. Metrics are gathered per payload number for debugging purposes. Any time field provided will be in reachback wall clock time UTC unless otherwise noted.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="flights_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent"></span>/flights</h4></div><div class="modal-body"><div class="alert alert-info"><p>Gets a list of airborne assets (unique to mission/customer) with basic identifying and geographic information. Identification is provided for the balloon, mission and any payloads accessible to the customer. Payloads will be configured to communicate over static numbered channels pre-flight (1-5). Geographic information is updated as it is received by the reachback facility. This endpoint can be polled at regular intervals to maintain current flight status. Metrics are gathered per payload number for debugging purposes. Any time field provided will be in reachback wall clock time UTC unless otherwise noted.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#flights_get_response" data-toggle="tab">Response</a></li><li><a href="#flights_get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="flights_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "airMessageTime": {
+        "type": "string",
+        "description": "UTC air time of the last message generated by this platform.  Formatted as ISO 8601 date string."
+      },
+      "altitudeM": {
+        "type": "number",
+        "description": "Altitude (meters) of the platform.",
+        "minimum": 0
+      },
+      "flightId": {
+        "type": "string",
+        "description": "Identifier for this platform/flight."
+      },
+      "latitude": {
+        "type": "number",
+        "description": "Latitude (decimal degrees) of the platform.",
+        "minimum": -90,
+        "maximum": 90
+      },
+      "longitude": {
+        "type": "number",
+        "description": "Longitude (decimal degrees) of the platform.",
+        "minimum": -180,
+        "maximum": 180
+      },
+      "messageReceivedTime": {
+        "type": "string",
+        "description": "UTC ground time for the last message received by the reachback facility from this platform.  Formatted as ISO 8601 date string."
+      },
+      "missionId": {
+        "type": "string",
+        "description": "Identifier for this mission."
+      },
+      "payloads": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "lastAirMessageTime": {
+              "type": "string",
+              "description": "UTC air time of the last message generated by this payload.  Formatted as ISO 8601 date string."
+            },
+            "lastMessageReceivedTime": {
+              "type": "string",
+              "description": "UTC ground time for the last message received by the reachback facility from this payload.  Formatted as ISO 8601 date string."
+            },
+            "lastMessageSentTime": {
+              "type": "string",
+              "description": "UTC ground time the last message was sent to this payload from the reachback facility."
+            },
+            "numReceivedFromPayload": {
+              "type": "integer",
+              "description": "Number of messages received from this payload during this flight.",
+              "minimum": 0
+            },
+            "numSentToPayload": {
+              "type": "integer",
+              "description": "Number of messages sent to this payload during this flight.  Message receipt by payload is unknown.",
+              "minimum": 0
+            },
+            "name": {
+              "type": "string",
+              "description": "String name of this payload."
+            }
+          },
+          "required": [
+            "numSentToPayload",
+            "lastAirMessageTime",
+            "lastMessageSentTime",
+            "lastMessageReceivedTime",
+            "name",
+            "numReceivedFromPayload"
+          ]
+        }
+      },
+      "flightState": {
+        "type": "string",
+        "description": "Current flight state enumeration as a String value.",
+        "enum": [
+          "Planned",
+          "Initialize",
+          "Pre-Launch",
+          "Ascend",
+          "Operable",
+          "Descend",
+          "Post-Flight"
+        ]
+      },
+      "uri": {
+        "type": "string",
+        "description": "URI to fetch status for this flight."
+      }
+    },
+    "required": [
+      "flightState",
+      "flightId",
+      "missionId",
+      "altitudeM",
+      "uri",
+      "longitude",
+      "airMessageTime",
+      "messageReceivedTime",
+      "payloads",
+      "latitude"
+    ]
+  }
+}
+</code></pre><p><strong>Example</strong>:</p><pre><code>[
+  {
+    "uri": "https://flights.ravenind.com/api/flights/{flightId}",
+    "flightId": "{flightId}",
+    "missionId": "{missionId}",
+    "payloads": [
+      {
+        "paynum": 1,
+        "name": "{Payload 1 Name}",
+        "numSentToPayload": 10,
+        "lastMessageSentTime": "2016-05-12T15:57:05.976Z",
+        "numReceivedFromPayload": 10,
+        "lastMessageReceivedTime": "2016-05-12T15:57:05.976Z",
+        "lastAirMessageTime": "2016-05-12T12:57:05.976Z"
+      },
+      {
+        "paynum": 2,
+        "name": "{Payload 2 Name}",
+        "numSentToPayload": 10,
+        "lastMessageSentTime": "2016-05-12T15:57:05.976Z",
+        "numReceivedFromPayload": 10,
+        "lastMessageReceivedTime": "2016-05-12T15:57:05.976Z",
+        "lastAirMessageTime": "2016-05-12T12:57:05.976Z"
+      }
+    ],
+    "airMessageTime": "2016-05-12T15:57:05.976Z",
+    "messageReceivedTime": "2016-05-12T15:57:05.976Z",
+    "flightState": "Operable",
+    "latitude": 34.5,
+    "longitude": -114.5,
+    "altitudeM": 30000.5
+  }
+]
+</code></pre><h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2><p>User is not authorized</p></div><div class="tab-pane" id="flights_get_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_flights__flightId_"><span class="parent">/flights</span>/{flightId}</a> <span class="methods"><a href="#flights__flightId__get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_flights__flightId_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#flights__flightId__get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Gets the status for a single balloon. Can be polled at regular intervals to maintain current flight status of this single balloon. Though it is recommended to used a combined call to /balloons for polling status.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="flights__flightId__get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/flights</span>/{flightId}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Gets the status for a single balloon. Can be polled at regular intervals to maintain current flight status of this single balloon. Though it is recommended to used a combined call to /balloons for polling status.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#flights__flightId__get_request" data-toggle="tab">Request</a></li><li><a href="#flights__flightId__get_response" data-toggle="tab">Response</a></li><li><a href="#flights__flightId__get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="flights__flightId__get_request"><h3>URI Parameters</h3><ul><li><strong>flightId</strong>: <em>required (string)</em></li></ul></div><div class="tab-pane" id="flights__flightId__get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "airMessageTime": {
+      "type": "string",
+      "description": "UTC air time of the last message generated by this platform.  Formatted as ISO 8601 date string."
+    },
+    "altitudeM": {
+      "type": "number",
+      "description": "Altitude (meters) of the platform.",
+      "minimum": 0
+    },
+    "flightId": {
+      "type": "string",
+      "description": "Identifier for this platform/flight."
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude (decimal degrees) of the platform.",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude (decimal degrees) of the platform.",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "messageReceivedTime": {
+      "type": "string",
+      "description": "UTC ground time for the last message received by the reachback facility from this platform.  Formatted as ISO 8601 date string."
+    },
+    "missionId": {
+      "type": "string",
+      "description": "Identifier for this mission."
+    },
+    "payloads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "lastAirMessageTime": {
+            "type": "string",
+            "description": "UTC air time of the last message generated by this payload.  Formatted as ISO 8601 date string."
+          },
+          "lastMessageReceivedTime": {
+            "type": "string",
+            "description": "UTC ground time for the last message received by the reachback facility from this payload.  Formatted as ISO 8601 date string."
+          },
+          "lastMessageSentTime": {
+            "type": "string",
+            "description": "UTC ground time the last message was sent to this payload from the reachback facility."
+          },
+          "numReceivedFromPayload": {
+            "type": "integer",
+            "description": "Number of messages received from this payload during this flight.",
+            "minimum": 0
+          },
+          "numSentToPayload": {
+            "type": "integer",
+            "description": "Number of messages sent to this payload during this flight.  Message receipt by payload is unknown.",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "String name of this payload."
+          }
+        },
+        "required": [
+          "numSentToPayload",
+          "lastAirMessageTime",
+          "lastMessageSentTime",
+          "lastMessageReceivedTime",
+          "name",
+          "numReceivedFromPayload"
+        ]
+      }
+    },
+    "flightState": {
+      "type": "string",
+      "description": "Current flight state enumeration as a String value.",
+      "enum": [
+        "Planned",
+        "Initialize",
+        "Pre-Launch",
+        "Ascend",
+        "Operable",
+        "Descend",
+        "Post-Flight"
+      ]
+    },
+    "uri": {
+      "type": "string",
+      "description": "URI to fetch status for this flight."
+    }
+  },
+  "required": [
+    "flightState",
+    "flightId",
+    "missionId",
+    "altitudeM",
+    "uri",
+    "longitude",
+    "airMessageTime",
+    "messageReceivedTime",
+    "payloads",
+    "latitude"
+  ]
+}
+</code></pre><p><strong>Example</strong>:</p><pre><code>{
+  "uri": "https://flights.ravenind.com/api/flights/{flightId}",
+  "flightId": "{flightId}",
+  "missionId": "{missionId}",
+  "payloads": [
+    {
+      "paynum": 1,
+      "name": "{Payload 1 Name}",
+      "numSentToPayload": 10,
+      "lastMessageSentTime": "2016-05-12T15:57:05.976Z",
+      "numReceivedFromPayload": 10,
+      "lastMessageReceivedTime": "2016-05-12T15:57:05.976Z",
+      "lastAirMessageTime": "2016-05-12T12:57:05.976Z"
+    },
+    {
+      "paynum": 2,
+      "name": "{Payload 2 Name}",
+      "numSentToPayload": 10,
+      "lastMessageSentTime": "2016-05-12T15:57:05.976Z",
+      "numReceivedFromPayload": 10,
+      "lastMessageReceivedTime": "2016-05-12T15:57:05.976Z",
+      "lastAirMessageTime": "2016-05-12T12:57:05.976Z"
+    }
+  ],
+  "airMessageTime": "2016-05-12T15:57:05.976Z",
+  "messageReceivedTime": "2016-05-12T15:57:05.976Z",
+  "flightState": "Operable",
+  "latitude": 34.5,
+  "longitude": -114.5,
+  "altitudeM": 30000.5
+}
+</code></pre><h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2><p>User is not authorized</p></div><div class="tab-pane" id="flights__flightId__get_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_flights__flightId__payload__paynum_"><span class="parent">/flights/{flightId}</span>/payload/{paynum}</a> <span class="methods"><a href="#flights__flightId__payload__paynum__put"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_flights__flightId__payload__paynum_" class="panel-collapse collapse"><div class="panel-body"><div class="list-group"><div onclick="window.location.href = '#flights__flightId__payload__paynum__put'" class="list-group-item"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Sends a message packet to this balloon&#39;s payload as available to this mission/customer. {paynum} is the desired payload identifier listed in the baloon status json (1-5). The message provided here will be accepted in binary form and will be recreated as is on the airborne side when published to the payload channel. The payload packet is not parsed or recorded. This is merely a pass-through API.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="flights__flightId__payload__paynum__put"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_put">put <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/flights/{flightId}</span>/payload/{paynum}</h4></div><div class="modal-body"><div class="alert alert-info"><p>Sends a message packet to this balloon&#39;s payload as available to this mission/customer. {paynum} is the desired payload identifier listed in the baloon status json (1-5). The message provided here will be accepted in binary form and will be recreated as is on the airborne side when published to the payload channel. The payload packet is not parsed or recorded. This is merely a pass-through API.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by missionJWT<p>The mision key JWT token will be provided to the customer before a test or series of flights and will allow API access during those flights. The token will also provide authentication and customer information to the CPAP service.</p></div><ul class="nav nav-tabs"><li class="active"><a href="#flights__flightId__payload__paynum__put_request" data-toggle="tab">Request</a></li><li><a href="#flights__flightId__payload__paynum__put_response" data-toggle="tab">Response</a></li><li><a href="#flights__flightId__payload__paynum__put_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="flights__flightId__payload__paynum__put_request"><h3>URI Parameters</h3><ul><li><strong>flightId</strong>: <em>required (string)</em></li><li><strong>paynum</strong>: <em>required (string)</em></li></ul><h3>Body</h3><p><strong>Type: application/octet-stream</strong></p></div><div class="tab-pane" id="flights__flightId__payload__paynum__put_response"><h2>HTTP status code <a href="http://httpstatus.es/204" target="_blank">204</a></h2><p>Data accepted. No response body returned.</p><h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2><p>Bad request.</p><h2>HTTP status code <a href="http://httpstatus.es/403" target="_blank">403</a></h2><p>User is not authorized</p></div><div class="tab-pane" id="flights__flightId__payload__paynum__put_securedby">Secured by missionJWT<h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid mission key token. Note that the token string must be presented as &#39;Bearer {token}&#39; like the example shows.</p><p><strong>Example</strong>:</p><pre>Bearer eyJhbGci.OiJIUzI1NiIsInR5cCI6.IkpXVCJ9</pre></li></ul></div></div></div></div></div></div></div></div></div></div></div><div class="col-md-3"><div id="sidebar" class="hidden-print affix" role="complementary"><ul class="nav nav-pills nav-stacked"><li><a href="#callback">/callback</a></li><li><a href="#flights">/flights</a></li></ul></div></div></div></div></body></html>

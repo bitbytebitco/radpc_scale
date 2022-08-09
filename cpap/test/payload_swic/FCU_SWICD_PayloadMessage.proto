@@ -1,0 +1,11 @@
+// Protocol Buffers - Google's data interchange format
+// Message definition for the Raven Stratospheric FCU Payload message
+
+syntax = "proto3";
+package fcu.swicd;
+
+message FCU_SWICD_PayloadMessage {
+    double messageSentTS = 1;     // Linux Epoch when sent from the ground (seconds.sub-seconds)
+    double messageReceivedTS = 2; // Linux Epoch when received at FCU (seconds.sub-seconds)
+    bytes  data = 3;              // Payload message data (200 bytes max)
+}
