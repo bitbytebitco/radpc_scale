@@ -54,6 +54,6 @@ static ip_address=10.1.3.7/24
 
 ### radpi_callback.py
 * Python Tornado webserver for receiving callback messages and providing visualization
-* Visualization done with charts.js
+* Visualization done with charts.js (see radpc_scale/callback_server/static/charting.js)
 
 
