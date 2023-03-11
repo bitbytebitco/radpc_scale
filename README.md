@@ -51,3 +51,9 @@ static ip_address=10.1.3.7/24
 ### radpi.py
 * Makes UART connection to primitive RadPC simulation running on Arduino 
 * Makes ZeroMQ connection to fcusim.py, and waits for commands
+
+### radpi_callback.py
+* Python Tornado webserver for receiving callback messages and providing visualization
+* Visualization done with charts.js
+
+
